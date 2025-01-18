@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Argue</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            text-align: center;
+            background-color: #fdf5e6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+
+        .timer {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            max-width: 800px;
+            margin: 20px 0;
+        }
+
+        .player {
+            flex: 1;
+            text-align: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            padding: 40px;
+            border-radius: 10px;
+            margin: 0 10px;
+            position: relative;
+        }
+
+        .active-player {
+            box-shadow: 0px 0px 20px 5px rgba(87, 87, 87, 0.7);
+            outline: 3px solid rgba(255, 255, 255, 0.7);
+        }
+
+
+        .color-label {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4a5f89;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .settings {
+            display: flex;
+            justify-content: space-around;
+            width: 90%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+
+        .settings-box {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            width: 45%;
+        }
+
+        .time-settings {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .time-settings label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .time-settings input {
+            width: 60px;
+            padding: 5px;
+            margin-left: 10px;
+            text-align: center;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .color-settings {
+            color: #333;
+        }
+
+        .color-settings label {
+            margin-right: 10px;
+        }
+
+        .color-settings select {
+            margin-right: 20px;
+            padding: 5px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .set-times {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>House Argue</h1>
+        <div class="timer">
+            <div id="player1" class="player" style="background-color: red;">
+                02:00
+            </div>
+            <div id="player2" class="player" style="background-color: green;">
+                02:00
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="start">Start</button>
+            <button id="pause">Pause</button>
+            <button id="reset">Reset</button>
+        </div>
+
+        <div class="settings">
+            <div class="settings-box">
+                <div class="time-settings">
+                    <label>
+                        House 1 Time: <input id="player1TimeInput" type="number" min="1" value="2"> minutes
+                    </label>
+                </div>
+                <div class="color-settings">
+                    <label for="player1Color">House 1:</label>
+                    <select id="player1Color">
+                        <option value="red">Schweitzer</option>
+                        <option value="green">Williams</option>
+                        <option value="blue">Kings</option>
+                        <option value="purple">Teresa</option>
+                        <option value="black">Malala</option>
+                        <option value="orange">Mandela</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-box">
+                <div class="time-settings">
+                    <label>
+                        House 2 Time: <input id="player2TimeInput" type="number" min="1" value="2"> minutes
+                    </label>
+                </div>
+                <div class="color-settings">
+                    <label for="player2Color">House 2:</label>
+                    <select id="player2Color">
+                        <option value="red">Schweitzer</option>
+                        <option value="green">Williams</option>
+                        <option value="blue">Kings</option>
+                        <option value="purple">Teresa</option>
+                        <option value="black">Malala</option>
+                        <option value="orange">Mandela</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="set-times">
+            <button id="setTimes">Set Times</button>
+        </div>
+    </div>
+
+    <script>
+        let player1Time = 120;
+        let player2Time = 30;
+        let currentPlayer = null;
+        let timerInterval = null;
+
+        const player1Display = document.getElementById('player1');
+        const player2Display = document.getElementById('player2');
+        const player1Label = document.getElementById('player1ColorLabel');
+        const player2Label = document.getElementById('player2ColorLabel');
+        const startButton = document.getElementById('start');
+        const pauseButton = document.getElementById('pause');
+        const resetButton = document.getElementById('reset');
+        const player1TimeInput = document.getElementById('player1TimeInput');
+        const player2TimeInput = document.getElementById('player2TimeInput');
+        const setTimesButton = document.getElementById('setTimes');
+        const player1ColorSelect = document.getElementById('player1Color');
+        const player2ColorSelect = document.getElementById('player2Color');
+
+        const switchSound = new Audio('switch.mp3');
+        switchSound.load()
+        const endSound = new Audio('end.mp3');
+        endSound.load()
+        const startSound = new Audio('start.mp3');
+        startSound.load()
+
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            player1Display.textContent = formatTime(player1Time);
+            player2Display.textContent = formatTime(player2Time);
+        }
+
+        function updateColors() {
+            const player1Color = player1ColorSelect.value;
+            const player2Color = player2ColorSelect.value;
+
+            player1Display.style.backgroundColor = player1Color;
+            player2Display.style.backgroundColor = player2Color;
+
+            player1Label.textContent = player1Color.charAt(0).toUpperCase() + player1Color.slice(1);
+            player2Label.textContent = player2Color.charAt(0).toUpperCase() + player2Color.slice(1);
+        }
+
+        function switchPlayer() {
+            if (currentPlayer === 'player1') {
+                player1Display.classList.remove('active-player');
+                player2Display.classList.add('active-player');
+                currentPlayer = 'player2';
+            } else {
+                player2Display.classList.remove('active-player');
+                player1Display.classList.add('active-player');
+                currentPlayer = 'player1';
+            }
+            playSound(switchSound);
+        }
+
+        function startTimer() {
+            if (timerInterval === null) {
+                startSound.play();
+            }
+
+            if (!currentPlayer) {
+                currentPlayer = player1Time >= player2Time ? 'player1' : 'player2';
+            }
+
+            if (currentPlayer === 'player1') {
+                player1Display.classList.add('active-player');
+            } else {
+                player2Display.classList.add('active-player');
+            }
+
+            if (timerInterval) return;
+
+            timerInterval = setInterval(() => {
+                if (currentPlayer === 'player1') {
+                    player1Time--;
+                    if (player1Time <= 0) {
+                        player1Time = 0;
+                        player1Display.style.backgroundColor = 'grey';
+                        currentPlayer = 'player2'; // Automatically switch to player 2
+                        player1Display.classList.remove('active-player');
+                        player2Display.classList.add('active-player');
+                        endSound.play();
+                    }
+                } else if (currentPlayer === 'player2') {
+                    player2Time--;
+                    if (player2Time <= 0) {
+                        player2Time = 0;
+                        player2Display.style.backgroundColor = 'grey';
+                        currentPlayer = 'player1'; // Automatically switch to player 1
+                        player1Display.classList.add('active-player');
+                        player2Display.classList.remove('active-player');
+                        endSound.play();
+                    }
+                }
+
+                updateDisplay();
+
+                // Stop the timer completely if both players' time has run out
+                if (player1Time === 0 && player2Time === 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    endSound.play();
+                    player1Display.classList.remove('active-player');
+                    player2Display.classList.remove('active-player');
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            player1Time = parseInt(player1TimeInput.value, 10) * 60;
+            player2Time = parseInt(player2TimeInput.value, 10) * 60;
+            currentPlayer = null;
+            player1Display.classList.remove('active-player');
+            player2Display.classList.remove('active-player');
+            player1Display.style.backgroundColor = player1ColorSelect.value;
+            player2Display.style.backgroundColor = player2ColorSelect.value;
+            updateColors();
+            updateDisplay();
+        }
+
+        function setTimes() {
+            const player1Minutes = parseFloat(player1TimeInput.value, 10);
+            const player2Minutes = parseFloat(player2TimeInput.value, 10);
+
+            if (!isNaN(player1Minutes) && player1Minutes > 0) {
+                player1Time = player1Minutes * 60;
+            }
+
+            if (!isNaN(player2Minutes) && player2Minutes > 0) {
+                player2Time = player2Minutes * 60;
+            }
+
+            updateDisplay();
+        }
+
+        function playSound(sound) {
+            sound.currentTime = 0; // Reset the sound to the beginning
+            sound.play();          // Play the sound
+        }
+
+
+        function handleSpacebar(event) {
+            if (event.code === 'Space') {
+                switchPlayer();
+            }
+        }
+
+        player1ColorSelect.addEventListener('change', updateColors);
+        player2ColorSelect.addEventListener('change', updateColors);
+        startButton.addEventListener('click', startTimer);
+        pauseButton.addEventListener('click', pauseTimer);
+        resetButton.addEventListener('click', resetTimer);
+        setTimesButton.addEventListener('click', setTimes);
+        document.addEventListener('keydown', handleSpacebar);
+
+        updateDisplay();
+    </script>
+</body>
+
+</html>
